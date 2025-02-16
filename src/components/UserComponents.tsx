@@ -8,7 +8,9 @@ const UserComponent: React.FC = () => {
   return (
     <View>
       <Text>User: {context.user.name}</Text>
+      <Text>Address: {context.user.address.city}</Text>
       <Button title="Change Name" onPress={() => context.setUser({ ...context.user, name: "Alice" })} />
+      <Button title="Change Address" onPress={() => context.setUser({ ...context.user, address: { ...context.user.address, city: "Boston"} })} />
     </View>
   );
 };

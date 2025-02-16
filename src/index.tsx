@@ -1,8 +1,19 @@
+// src/App.tsx
 import React from 'react';
-import ValueScreen from './screens/ValueScreen';
+import { SafeAreaView } from 'react-native';
+import { AppProvider } from './contexts/AppContext';
+import UserComponent from './components/UserComponents';
+import ThemeComponent from './components/ThemeComponents';
 
-const App = () => {
-    return <ValueScreen />;
-    };
+const App: React.FC = () => {
+  return (
+    <AppProvider>
+      <SafeAreaView>
+        <UserComponent />
+        <ThemeComponent />
+      </SafeAreaView>
+    </AppProvider>
+  );
+};
 
 export default App;

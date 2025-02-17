@@ -1,10 +1,11 @@
+import { API_URLS } from "@/src/constants/apiUrls";
 import { CONTEXT_NAMES } from "@/src/constants/contextNames";
 import { User } from "@/src/models";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export const fetchUserFromDB = async () => {
     try {
-      const response = await fetch("https://api.example.com/user");
+      const response = await fetch(API_URLS.USER);
       const data = await response.json();
       await AsyncStorage.setItem(CONTEXT_NAMES.THEME, JSON.stringify(data));
       return data;
@@ -26,7 +27,7 @@ export const fetchUserFromDB = async () => {
   
   export const updateUserInDatabase = async (updatedUser: User) => {
     try {
-      await fetch("https://api.example.com/user", {
+      await fetch(API_URLS.USER, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(updatedUser),

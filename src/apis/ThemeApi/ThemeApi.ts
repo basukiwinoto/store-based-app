@@ -1,10 +1,11 @@
+import { API_URLS } from "@/src/constants/apiUrls";
 import { CONTEXT_NAMES } from "@/src/constants/contextNames";
 import { Theme } from "@/src/models";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export const fetchThemeFromDB = async () => {
     try {
-      const response = await fetch("https://api.example.com/theme");
+      const response = await fetch(API_URLS.THEME);
       const data = await response.json();
       await AsyncStorage.setItem(CONTEXT_NAMES.THEME, JSON.stringify(data));
       return data;
@@ -26,7 +27,7 @@ export const fetchThemeFromDB = async () => {
   
   export const updateThemeInDatabase = async (updatedTheme: Theme) => {
     try {
-      await fetch("https://api.example.com/theme", {
+      await fetch(API_URLS.THEME, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(updatedTheme),

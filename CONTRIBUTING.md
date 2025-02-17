@@ -16,17 +16,30 @@ export const CONTEXT_NAMES = {
 };
 ```
 
-### 2. Create API Functions
+### 2. Define API URLs in Constants File
+All API endpoint URLs should be stored in a constants file to maintain consistency and allow easy modifications.
+
+#### Example: `src/constants/apiUrls.ts`
+```typescript
+export const API_URLS = {
+  EXAMPLE: "https://api.example.com/example",
+  USER: "https://api.example.com/user",
+  THEME: "https://api.example.com/theme",
+};
+```
+
+### 3. Create API Functions
 Each context should interact with an API. Add a new file under `src/api/` to manage database interactions.
 
 #### Example: `src/api/exampleApi.ts`
 ```typescript
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { CONTEXT_NAMES } from '../constants/contextNames';
+import { API_URLS } from '../constants/apiUrls';
 
 export const fetchExampleFromDB = async () => {
   try {
-    const response = await fetch(`https://api.example.com/${CONTEXT_NAMES.EXAMPLE}`);
+    const response = await fetch(API_URLS.EXAMPLE);
     const data = await response.json();
     await AsyncStorage.setItem(CONTEXT_NAMES.EXAMPLE, JSON.stringify(data));
     return data;
@@ -38,7 +51,7 @@ export const fetchExampleFromDB = async () => {
 
 export const updateExampleInDatabase = async (updatedExample: any) => {
   try {
-    await fetch(`https://api.example.com/${CONTEXT_NAMES.EXAMPLE}`, {
+    await fetch(API_URLS.EXAMPLE, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(updatedExample),
@@ -51,7 +64,7 @@ export const updateExampleInDatabase = async (updatedExample: any) => {
 };
 ```
 
-### 3. Create a New Context Using the Generic Factory
+### 4. Create a New Context Using the Generic Factory
 Define a new context under `src/context/` using the `createGenericContext` function.
 
 #### Example: `src/context/ExampleContext.ts`
@@ -65,7 +78,7 @@ export const { GenericProvider: ExampleProvider, useGenericContext: useExampleCo
   createGenericContext(CONTEXT_NAMES.EXAMPLE, fetchExampleFromDB, updateExampleInDatabase, defaultExample);
 ```
 
-### 4. Integrate with `AppProvider`
+### 5. Integrate with `AppProvider`
 Add the new context to `src/context/AppContext.ts`.
 
 ```typescript
@@ -77,7 +90,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 };
 ```
 
-### 5. Use the Context in Components
+### 6. Use the Context in Components
 In your components, use the new context:
 ```typescript
 import { useExampleContext } from "../context/ExampleContext";
@@ -88,13 +101,13 @@ const ExampleComponent: React.FC = () => {
 };
 ```
 
-### 6. Test the Integration
+### 7. Test the Integration
 Ensure:
 - The context initializes correctly.
 - Updates persist to local storage and the database.
 - The retry mechanism works when offline.
 
-### 7. Submit Your Changes
+### 8. Submit Your Changes
 - Run `eslint` and `prettier` to format your code.
 - Submit a pull request with a detailed description.
 

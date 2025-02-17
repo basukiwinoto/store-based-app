@@ -43,11 +43,11 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { CONTEXT_NAMES } from '../constants/contextNames';
 import { API_URLS } from '../constants/apiUrls';
 
-export const fetchExampleFromDB = async () => {
+export const fetchExampleFromDB = async (userId: string) => {
   try {
-    const response = await fetch(API_URLS.EXAMPLE);
+    const response = await fetch(`${API_URLS.EXAMPLE}?userId=${userId}`);
     const data = await response.json();
-    await AsyncStorage.setItem(CONTEXT_NAMES.EXAMPLE, JSON.stringify(data));
+    await AsyncStorage.setItem(`${CONTEXT_NAMES.EXAMPLE}-${userId}`, JSON.stringify(data));
     return data;
   } catch (error) {
     console.error("Failed to fetch example data", error);
@@ -55,17 +55,17 @@ export const fetchExampleFromDB = async () => {
   }
 };
 
-export const updateExampleInDatabase = async (updatedExample: any) => {
+export const updateExampleInDatabase = async (userId: string, updatedExample: any) => {
   try {
-    await fetch(API_URLS.EXAMPLE, {
+    await fetch(`${API_URLS.EXAMPLE}?userId=${userId}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(updatedExample),
     });
-    await AsyncStorage.setItem(CONTEXT_NAMES.EXAMPLE, JSON.stringify(updatedExample));
+    await AsyncStorage.setItem(`${CONTEXT_NAMES.EXAMPLE}-${userId}`, JSON.stringify(updatedExample));
   } catch (error) {
     console.error("Failed to update example in the database", error);
-    await AsyncStorage.setItem(`pending_${CONTEXT_NAMES.EXAMPLE}_update`, JSON.stringify(updatedExample));
+    await AsyncStorage.setItem(`pending_${CONTEXT_NAMES.EXAMPLE}_update-${userId}`, JSON.stringify(updatedExample));
   }
 };
 ```

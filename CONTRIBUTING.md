@@ -1,21 +1,34 @@
 # Contributing to React Native Context Management
 
-Thank you for your interest in contributing! This guide outlines the steps to add a new context to the project.
+Thank you for your interest in contributing! This guide outlines the steps to add a new context to the project using the **generic context factory**.
 
 ## Steps to Add a New Context
 
-### 1. Create API Functions
+### 1. Define Context Names in Constants File
+All context names should be stored in a constants file for better organization and maintainability.
+
+#### Example: `src/constants/contextNames.ts`
+```typescript
+export const CONTEXT_NAMES = {
+  EXAMPLE: "example",
+  USER: "user",
+  THEME: "theme",
+};
+```
+
+### 2. Create API Functions
 Each context should interact with an API. Add a new file under `src/api/` to manage database interactions.
 
 #### Example: `src/api/exampleApi.ts`
 ```typescript
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { CONTEXT_NAMES } from '../constants/contextNames';
 
 export const fetchExampleFromDB = async () => {
   try {
-    const response = await fetch("https://api.example.com/example");
+    const response = await fetch(`https://api.example.com/${CONTEXT_NAMES.EXAMPLE}`);
     const data = await response.json();
-    await AsyncStorage.setItem('example', JSON.stringify(data));
+    await AsyncStorage.setItem(CONTEXT_NAMES.EXAMPLE, JSON.stringify(data));
     return data;
   } catch (error) {
     console.error("Failed to fetch example data", error);
@@ -23,129 +36,66 @@ export const fetchExampleFromDB = async () => {
   }
 };
 
-export const fetchExampleFromLocal = async () => {
-  try {
-    const localData = await AsyncStorage.getItem('example');
-    return localData ? JSON.parse(localData) : {};
-  } catch (error) {
-    console.error("Failed to load example data from local storage", error);
-    return {};
-  }
-};
-
 export const updateExampleInDatabase = async (updatedExample: any) => {
   try {
-    await fetch("https://api.example.com/example", {
+    await fetch(`https://api.example.com/${CONTEXT_NAMES.EXAMPLE}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(updatedExample),
     });
-    await AsyncStorage.setItem('example', JSON.stringify(updatedExample));
+    await AsyncStorage.setItem(CONTEXT_NAMES.EXAMPLE, JSON.stringify(updatedExample));
   } catch (error) {
     console.error("Failed to update example in the database", error);
-    await AsyncStorage.setItem('pending_example_update', JSON.stringify(updatedExample));
-  }
-};
-
-export const retryExampleUpdate = async () => {
-  try {
-    const pendingUpdate = await AsyncStorage.getItem('pending_example_update');
-    if (pendingUpdate) {
-      const example = JSON.parse(pendingUpdate);
-      await updateExampleInDatabase(example);
-      await AsyncStorage.removeItem('pending_example_update');
-    }
-  } catch (error) {
-    console.error("Failed to retry example update", error);
+    await AsyncStorage.setItem(`pending_${CONTEXT_NAMES.EXAMPLE}_update`, JSON.stringify(updatedExample));
   }
 };
 ```
 
-### 2. Create the Context
-Define a new context under `src/context/`.
+### 3. Create a New Context Using the Generic Factory
+Define a new context under `src/context/` using the `createGenericContext` function.
 
-#### Example: `src/context/ExampleContext.tsx`
+#### Example: `src/context/ExampleContext.ts`
 ```typescript
-import React, { createContext, useState, useContext, useEffect, useRef } from 'react';
-import { fetchExampleFromLocal, fetchExampleFromDB, updateExampleInDatabase } from '../api/exampleApi';
+import { createGenericContext } from "../utils/genericContext";
+import { fetchExampleFromDB, updateExampleInDatabase } from "../api/exampleApi";
+import { CONTEXT_NAMES } from "../constants/contextNames";
 
-interface ExampleContextType {
-  example: any;
-  setExample: React.Dispatch<React.SetStateAction<any>>;
-}
-
-const ExampleContext = createContext<ExampleContextType | null>(null);
-
-export const ExampleProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [example, setExample] = useState<any>({});
-  const isFirstLoad = useRef(true);
-
-  useEffect(() => {
-    fetchExampleFromLocal().then((localData) => {
-      setExample(localData);
-      fetchExampleFromDB().then(setExample);
-      isFirstLoad.current = false;
-    });
-  }, []);
-
-  useEffect(() => {
-    if (!isFirstLoad.current) {
-      updateExampleInDatabase(example);
-    }
-  }, [example]);
-
-  return (
-    <ExampleContext.Provider value={{ example, setExample }}>
-      {children}
-    </ExampleContext.Provider>
-  );
-};
-
-export const useExampleContext = (): ExampleContextType => {
-  const context = useContext(ExampleContext);
-  if (!context) {
-    throw new Error("useExampleContext must be used within an ExampleProvider");
-  }
-  return context;
-};
+const defaultExample = {};
+export const { GenericProvider: ExampleProvider, useGenericContext: useExampleContext } =
+  createGenericContext(CONTEXT_NAMES.EXAMPLE, fetchExampleFromDB, updateExampleInDatabase, defaultExample);
 ```
 
-### 3. Integrate with `AppProvider`
-Add the new context to `src/context/AppContext.tsx`.
+### 4. Integrate with `AppProvider`
+Add the new context to `src/context/AppContext.ts`.
 
 ```typescript
-import React from 'react';
-import { ExampleProvider } from './ExampleContext';
+import React from "react";
+import { ExampleProvider } from "./ExampleContext";
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  return (
-    <ExampleProvider>
-      {children}
-    </ExampleProvider>
-  );
+  return <ExampleProvider>{children}</ExampleProvider>;
 };
 ```
 
-### 4. Use the Context in Components
+### 5. Use the Context in Components
 In your components, use the new context:
 ```typescript
-import { useExampleContext } from '../context/ExampleContext';
+import { useExampleContext } from "../context/ExampleContext";
 
 const ExampleComponent: React.FC = () => {
-  const { example, setExample } = useExampleContext();
+  const { data: example, setData: setExample } = useExampleContext();
   return <div>{JSON.stringify(example)}</div>;
 };
 ```
 
-### 5. Test the Integration
+### 6. Test the Integration
 Ensure:
 - The context initializes correctly.
 - Updates persist to local storage and the database.
 - The retry mechanism works when offline.
 
-### 6. Submit Your Changes
+### 7. Submit Your Changes
 - Run `eslint` and `prettier` to format your code.
 - Submit a pull request with a detailed description.
 
 Thank you for contributing! 🎉
-

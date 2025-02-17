@@ -4,7 +4,7 @@ import { Button } from 'react-native';
 import { useAppContext } from '../contexts/useAppContext';
 
 const ThemeComponent: React.FC = () => {
-  const { context } = useAppContext();
+  const context = useAppContext();
   return (
     <Button
       title="Toggle Dark Mode"

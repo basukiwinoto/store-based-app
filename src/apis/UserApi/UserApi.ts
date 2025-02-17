@@ -1,5 +1,6 @@
 import { API_URLS } from "@/src/constants/apiUrls";
 import { CONTEXT_NAMES } from "@/src/constants/contextNames";
+import { DEFAULT_VALUES } from "@/src/constants/defaultValues";
 import { User } from "@/src/models";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
@@ -11,17 +12,17 @@ export const fetchUserFromDB = async () => {
       return data;
     } catch (error) {
       console.error("Failed to fetch user data", error);
-      return { name: "John", age: 30, address: { city: "Unknown", street: "Unknown" } };
+      return DEFAULT_VALUES.USER;
     }
   };
   
   export const fetchUserFromLocal = async () => {
     try {
       const localData = await AsyncStorage.getItem(CONTEXT_NAMES.THEME);
-      return localData ? JSON.parse(localData) : { name: "John", age: 30, address: { city: "Unknown", street: "Unknown" } };
+      return localData ? JSON.parse(localData) : DEFAULT_VALUES.USER;
     } catch (error) {
       console.error("Failed to load user data from local storage", error);
-      return { name: "John", age: 30, address: { city: "Unknown", street: "Unknown" } };
+      return DEFAULT_VALUES.USER;
     }
   };
   

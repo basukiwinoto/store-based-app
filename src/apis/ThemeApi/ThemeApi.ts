@@ -1,5 +1,6 @@
 import { API_URLS } from "@/src/constants/apiUrls";
 import { CONTEXT_NAMES } from "@/src/constants/contextNames";
+import { DEFAULT_VALUES } from "@/src/constants/defaultValues";
 import { Theme } from "@/src/models";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
@@ -11,17 +12,17 @@ export const fetchThemeFromDB = async () => {
       return data;
     } catch (error) {
       console.error("Failed to fetch theme data", error);
-      return { darkMode: false };
+      return DEFAULT_VALUES.THEME;
     }
   };
   
   export const fetchThemeFromLocal = async () => {
     try {
       const localData = await AsyncStorage.getItem(CONTEXT_NAMES.THEME);
-      return localData ? JSON.parse(localData) : { darkMode: false };
+      return localData ? JSON.parse(localData) : DEFAULT_VALUES.THEME;
     } catch (error) {
       console.error("Failed to load theme data from local storage", error);
-      return { darkMode: false };
+      return DEFAULT_VALUES.THEME;
     }
   };
   

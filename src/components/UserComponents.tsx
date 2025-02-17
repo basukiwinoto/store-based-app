@@ -4,7 +4,7 @@ import { View, Text, Button } from 'react-native';
 import { useAppContext } from '../contexts/useAppContext';
 
 const UserComponent: React.FC = () => {
-  const { context } = useAppContext();
+  const context = useAppContext();
   return (
     <View>
       <Text>User: {context.user.name}</Text>

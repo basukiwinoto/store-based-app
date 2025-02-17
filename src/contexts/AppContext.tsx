@@ -1,6 +1,7 @@
 // src/context/AppContext.tsx
 import React, { ReactNode } from 'react';
-import { ThemeProvider, UserProvider } from '.';
+import { UserProvider } from './UserContext/UserContext';
+import { ThemeProvider } from './ThemeContext/ThemeContext';
 
 interface AppProviderProps {
   children: ReactNode;

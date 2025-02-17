@@ -1,4 +1,5 @@
-import { useThemeContext, useUserContext } from ".";
+import { useThemeContext } from "./ThemeContext/ThemeContext";
+import { useUserContext } from "./UserContext/UserContext";
 
 // src/hooks/useAppContext.ts
 export const useAppContext = () => {

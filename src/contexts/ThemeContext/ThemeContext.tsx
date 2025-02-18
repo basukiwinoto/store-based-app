@@ -1,8 +1,7 @@
-// src/context/ThemeContext.ts
 import { CONTEXT_NAMES } from '@/src/constants/contextNames';
-import { createGenericContext } from '../genericContext';
-import { fetchThemeFromDB, updateThemeInDatabase } from '@/src/apis';
 import { DEFAULT_VALUES } from '@/src/constants/defaultValues';
+import { createGenericContext } from '../genericContext';
+import { API_URLS } from '@/src/constants/apiUrls';
 
 export const { GenericProvider: ThemeProvider, useGenericContext: useThemeContext } =
-  createGenericContext(CONTEXT_NAMES.THEME, fetchThemeFromDB, updateThemeInDatabase, DEFAULT_VALUES.THEME);
+  createGenericContext(CONTEXT_NAMES.THEME, API_URLS.THEME, DEFAULT_VALUES.THEME);

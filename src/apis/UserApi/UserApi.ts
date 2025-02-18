@@ -1,55 +1,24 @@
 import { API_URLS } from "@/src/constants/apiUrls";
 import { CONTEXT_NAMES } from "@/src/constants/contextNames";
-import { DEFAULT_VALUES } from "@/src/constants/defaultValues";
 import { User } from "@/src/models";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { fetchFromDB, fetchFromLocal, retryUpdate, updateInDatabase } from "../genericApi";
 
-export const fetchUserFromDB = async (userId: string) => {
-    try {
-      const response = await fetch(`${API_URLS.USER}?userId=${userId}`);
-      const data = await response.json();
-      await AsyncStorage.setItem(`${CONTEXT_NAMES.THEME}-${userId}`, JSON.stringify(data));
-      return data;
-    } catch (error) {
-      console.error("Failed to fetch user data", error);
-      return DEFAULT_VALUES.USER;
-    }
-  };
-  
-  export const fetchUserFromLocal = async (userId: string) => {
-    try {
-      const localData = await AsyncStorage.getItem(`${CONTEXT_NAMES.THEME}-${userId}`);
-      return localData ? JSON.parse(localData) : DEFAULT_VALUES.USER;
-    } catch (error) {
-      console.error("Failed to load user data from local storage", error);
-      return DEFAULT_VALUES.USER;
-    }
-  };
-  
-  export const updateUserInDatabase = async (userId: string, updatedUser: User) => {
-    try {
-      await fetch(`${API_URLS.USER}?userId=${userId}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(updatedUser),
-      });
-      await AsyncStorage.setItem(`${CONTEXT_NAMES.THEME}-${userId}`, JSON.stringify(updatedUser));
-    } catch (error) {
-      console.error("Failed to update user in the database", error);
-      await AsyncStorage.setItem(`pending_${CONTEXT_NAMES.THEME}_update-${userId}`, JSON.stringify(updatedUser));
-    }
-  };
-  
-  export const retryUserUpdate = async (userId: string) => {
-      try {
-        const pendingUpdate = await AsyncStorage.getItem(`pending_${CONTEXT_NAMES.THEME}_update-${userId}`);
-        if (pendingUpdate) {
-          const user = JSON.parse(pendingUpdate);
-          await updateUserInDatabase(userId, user);
-          await AsyncStorage.removeItem(`pending_${CONTEXT_NAMES.THEME}_update-${userId}`);
-        }
-      } catch (error) {
-        console.error("Failed to retry user update", error);
-      }
-    };
-  
+// Fetch user data from the database
+export const fetchUserFromDB = async (userId: string): Promise<User> => {
+  return fetchFromDB<User>(CONTEXT_NAMES.USER, API_URLS.USER, userId);
+};
+
+// Fetch user data from local storage
+export const fetchUserFromLocal = async (userId: string): Promise<User> => {
+  return fetchFromLocal<User>(CONTEXT_NAMES.USER, userId);
+};
+
+// Update user data in the database
+export const updateUserInDatabase = async (userId: string, updatedUser: User) => {
+  return updateInDatabase(CONTEXT_NAMES.USER, API_URLS.USER, userId, updatedUser);
+};
+
+// Retry updating user data if previous updates failed
+export const retryUserUpdate = async (userId: string) => {
+  return retryUpdate<User>(CONTEXT_NAMES.USER, API_URLS.USER, userId);
+};

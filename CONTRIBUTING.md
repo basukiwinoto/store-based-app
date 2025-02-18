@@ -10,9 +10,9 @@ All context names, API URLs, and default values should be stored in constants fi
 #### Example: `src/constants/contextNames.ts`
 ```typescript
 export const CONTEXT_NAMES = {
-  EXAMPLE: "example",
-  USER: "user",
-  THEME: "theme",
+  EXAMPLE: "EXAMPLE",
+  USER: "USER",
+  THEME: "THEME",
 };
 ```
 
@@ -34,39 +34,30 @@ export const DEFAULT_VALUES = {
 };
 ```
 
-### 2. Create API Functions
-Each context should interact with an API. Add a new file under `src/api/` to manage database interactions.
+### 2. Create API Functions Using the Generic API
+Each context should interact with an API. Add a new file under `src/api/` and utilize the generic API functions for consistency.
 
 #### Example: `src/api/exampleApi.ts`
 ```typescript
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { CONTEXT_NAMES } from '../constants/contextNames';
-import { API_URLS } from '../constants/apiUrls';
+import { fetchFromDB, fetchFromLocal, updateInDatabase, retryUpdate } from "../api/genericApi";
+import { API_URLS } from "../constants/apiUrls";
+import { CONTEXT_NAMES } from "../constants/contextNames";
+import { DEFAULT_VALUES } from "../constants/defaultValues";
 
 export const fetchExampleFromDB = async (userId: string) => {
-  try {
-    const response = await fetch(`${API_URLS.EXAMPLE}?userId=${userId}`);
-    const data = await response.json();
-    await AsyncStorage.setItem(`${CONTEXT_NAMES.EXAMPLE}-${userId}`, JSON.stringify(data));
-    return data;
-  } catch (error) {
-    console.error("Failed to fetch example data", error);
-    return {};
-  }
+  return fetchFromDB(CONTEXT_NAMES.EXAMPLE, API_URLS.EXAMPLE, userId);
+};
+
+export const fetchExampleFromLocal = async (userId: string) => {
+  return fetchFromLocal(CONTEXT_NAMES.EXAMPLE, userId);
 };
 
 export const updateExampleInDatabase = async (userId: string, updatedExample: any) => {
-  try {
-    await fetch(`${API_URLS.EXAMPLE}?userId=${userId}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(updatedExample),
-    });
-    await AsyncStorage.setItem(`${CONTEXT_NAMES.EXAMPLE}-${userId}`, JSON.stringify(updatedExample));
-  } catch (error) {
-    console.error("Failed to update example in the database", error);
-    await AsyncStorage.setItem(`pending_${CONTEXT_NAMES.EXAMPLE}_update-${userId}`, JSON.stringify(updatedExample));
-  }
+  return updateInDatabase(CONTEXT_NAMES.EXAMPLE, API_URLS.EXAMPLE, userId, updatedExample);
+};
+
+export const retryExampleUpdate = async (userId: string) => {
+  return retryUpdate(CONTEXT_NAMES.EXAMPLE, API_URLS.EXAMPLE, userId);
 };
 ```
 
@@ -81,7 +72,7 @@ import { CONTEXT_NAMES } from "../constants/contextNames";
 import { DEFAULT_VALUES } from "../constants/defaultValues";
 
 export const { GenericProvider: ExampleProvider, useGenericContext: useExampleContext } =
-  createGenericContext(CONTEXT_NAMES.EXAMPLE, fetchExampleFromDB, updateExampleInDatabase, DEFAULT_VALUES.EXAMPLE);
+  createGenericContext(CONTEXT_NAMES.EXAMPLE, API_URLS.EXAMPLE, DEFAULT_VALUES.EXAMPLE);
 ```
 
 ### 4. Integrate with `AppProvider` and `useAppContext`
@@ -94,11 +85,11 @@ import { ExampleProvider, useExampleContext } from "./ExampleContext";
 import { UserProvider, useUserContext } from "./UserContext";
 import { ThemeProvider, useThemeContext } from "./ThemeContext";
 
-export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const AppProvider: React.FC<{ children: React.ReactNode; userId: string }> = ({ children, userId }) => {
   return (
-    <UserProvider>
-      <ThemeProvider>
-        <ExampleProvider>{children}</ExampleProvider>
+    <UserProvider userId={userId}>
+      <ThemeProvider userId={userId}>
+        <ExampleProvider userId={userId}>{children}</ExampleProvider>
       </ThemeProvider>
     </UserProvider>
   );

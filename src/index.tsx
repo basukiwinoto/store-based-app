@@ -4,6 +4,10 @@ import { AppProvider } from './contexts/AppContext';
 import UserComponent from './components/UserComponents';
 import ThemeComponent from './components/ThemeComponents';
 
+if(__DEV__) {
+  require('./configs/reactotronConfig');
+}
+
 const App: React.FC = () => {
   const userId = 'example-user-id'; // Replace with dynamic user ID retrieval
 

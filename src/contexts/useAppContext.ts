@@ -1,3 +1,4 @@
+import reactotron from "reactotron-react-native";
 import { useThemeContext } from "./ThemeContext/ThemeContext";
 import { useUserContext } from "./UserContext/UserContext";
 
@@ -5,6 +6,19 @@ import { useUserContext } from "./UserContext/UserContext";
 export const useAppContext = () => {
   const { data: user, setData: setUser } = useUserContext();
   const { data: theme, setData: setTheme } = useThemeContext();
+
+  if (__DEV__){
+    reactotron.stateValuesChange([
+      {
+        path: 'user',
+        value: user,
+      },
+      {
+        path: 'theme',
+        value: theme,
+      }
+    ])  
+  }
 
   return {
     user,

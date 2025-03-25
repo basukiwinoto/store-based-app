@@ -1,7 +1,7 @@
 import { CONTEXT_NAMES } from '@/src/constants/contextNames';
 import { DEFAULT_VALUES } from '@/src/constants/defaultValues';
 import { createGenericContext } from '../genericContext';
-import { API_URLS } from '@/src/constants/apiUrls';
+import { DB_PATHS } from '@/src/constants/dbPaths';
 
 export const { GenericProvider: UserProvider, useGenericContext: useUserContext } =
-  createGenericContext(CONTEXT_NAMES.USER, API_URLS.USER, DEFAULT_VALUES.USER);
+  createGenericContext(CONTEXT_NAMES.USER, DB_PATHS.USER, DEFAULT_VALUES.USER);

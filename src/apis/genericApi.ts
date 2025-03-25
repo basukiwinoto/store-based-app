@@ -1,10 +1,11 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { DEFAULT_VALUES } from "@/src/constants/defaultValues";
+import { doc, DocumentData, getDoc, getFirestore, setDoc } from "firebase/firestore";
 
-export const fetchFromDB = async <T>(contextKey: string, apiUrl: string, userId: string): Promise<T> => {
+export const fetchFromDB = async <T>(contextKey: string, dbPath: string, userId: string): Promise<T> => {
   try {
-    const response = await fetch(`${apiUrl}?userId=${userId}`);
-    const data = await response.json();
+    const db = getFirestore();
+    const data = (await getDoc(doc(db, dbPath, userId))).data() as T;
     await AsyncStorage.setItem(`${contextKey}-${userId}`, JSON.stringify(data));
     return data;
   } catch (error) {
@@ -23,13 +24,10 @@ export const fetchFromLocal = async <T>(contextKey: string, userId: string): Pro
   }
 };
 
-export const updateInDatabase = async <T>(contextKey: string, apiUrl: string, userId: string, updatedData: T) => {
+export const updateInDatabase = async <T>(contextKey: string, dbPath: string, userId: string, updatedData: T) => {
   try {
-    await fetch(`${apiUrl}?userId=${userId}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(updatedData),
-    });
+    const db = getFirestore();
+    await setDoc(doc(db, dbPath, userId), updatedData as DocumentData);
     await AsyncStorage.setItem(`${contextKey}-${userId}`, JSON.stringify(updatedData));
   } catch (error) {
     console.error(`Failed to update data for ${contextKey}`, error);
@@ -37,12 +35,12 @@ export const updateInDatabase = async <T>(contextKey: string, apiUrl: string, us
   }
 };
 
-export const retryUpdate = async <T>(contextKey: string, apiUrl: string, userId: string) => {
+export const retryUpdate = async <T>(contextKey: string, dbPath: string, userId: string) => {
   try {
     const pendingUpdate = await AsyncStorage.getItem(`pending_${contextKey}_update-${userId}`);
     if (pendingUpdate) {
       const data = JSON.parse(pendingUpdate) as T;
-      await updateInDatabase(contextKey, apiUrl, userId, data);
+      await updateInDatabase(contextKey, dbPath, userId, data);
       await AsyncStorage.removeItem(`pending_${contextKey}_update-${userId}`);
     }
   } catch (error) {

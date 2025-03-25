@@ -4,7 +4,7 @@ import { ThemeProvider } from './ThemeContext/ThemeContext';
 
 interface AppProviderProps {
   children: ReactNode;
-  userId: string;
+  userId: string|null;
 }
 
 export const AppProvider: React.FC<AppProviderProps> = ({ children, userId }) => {

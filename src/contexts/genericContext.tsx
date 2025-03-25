@@ -10,11 +10,12 @@ interface GenericContextType<T> {
 export const createGenericContext = <T,>(contextKey: string, apiUrl: string, defaultValue: T) => {
   const GenericContext = createContext<GenericContextType<T> | null>(null);
 
-  const GenericProvider: React.FC<{ children: React.ReactNode; userId: string }> = ({ children, userId }) => {
+  const GenericProvider: React.FC<{ children: React.ReactNode; userId: string|null }> = ({ children, userId }) => {
     const [data, setData] = useState<T>(defaultValue);
     const isFirstLoad = useRef(true);
 
     useEffect(() => {
+      if (!userId) return;
       const initializeData = async () => {
         const localData = await fetchFromLocal<T>(contextKey, userId);
         setData(localData);
@@ -31,6 +32,8 @@ export const createGenericContext = <T,>(contextKey: string, apiUrl: string, def
     }, [userId]);
 
     useEffect(() => {
+      if (!userId) return;
+
       if (!isFirstLoad.current) {
         updateInDatabase(contextKey, apiUrl, userId, data)
           .then(() => AsyncStorage.setItem(`${contextKey}-${userId}`, JSON.stringify(data)))

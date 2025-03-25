@@ -16,12 +16,12 @@ export const CONTEXT_NAMES = {
 };
 ```
 
-#### Example: `src/constants/apiUrls.ts`
+#### Example: `src/constants/dbPaths.ts`
 ```typescript
-export const API_URLS = {
-  EXAMPLE: "https://api.example.com/example",
-  USER: "https://api.example.com/user",
-  THEME: "https://api.example.com/theme",
+export const DB_PATHS = {
+  EXAMPLE: "Examples",
+  USER: "Users",
+  THEME: "Themes",
 };
 ```
 
@@ -40,12 +40,12 @@ Each context should interact with an API. Add a new file under `src/api/` and ut
 #### Example: `src/api/exampleApi.ts`
 ```typescript
 import { fetchFromDB, fetchFromLocal, updateInDatabase, retryUpdate } from "../api/genericApi";
-import { API_URLS } from "../constants/apiUrls";
+import { DB_PATHS } from "../constants/dbPaths";
 import { CONTEXT_NAMES } from "../constants/contextNames";
 import { DEFAULT_VALUES } from "../constants/defaultValues";
 
 export const fetchExampleFromDB = async (userId: string) => {
-  return fetchFromDB(CONTEXT_NAMES.EXAMPLE, API_URLS.EXAMPLE, userId);
+  return fetchFromDB(CONTEXT_NAMES.EXAMPLE, DB_PATHS.EXAMPLE, userId);
 };
 
 export const fetchExampleFromLocal = async (userId: string) => {
@@ -53,11 +53,11 @@ export const fetchExampleFromLocal = async (userId: string) => {
 };
 
 export const updateExampleInDatabase = async (userId: string, updatedExample: any) => {
-  return updateInDatabase(CONTEXT_NAMES.EXAMPLE, API_URLS.EXAMPLE, userId, updatedExample);
+  return updateInDatabase(CONTEXT_NAMES.EXAMPLE, DB_PATHS.EXAMPLE, userId, updatedExample);
 };
 
 export const retryExampleUpdate = async (userId: string) => {
-  return retryUpdate(CONTEXT_NAMES.EXAMPLE, API_URLS.EXAMPLE, userId);
+  return retryUpdate(CONTEXT_NAMES.EXAMPLE, DB_PATHS.EXAMPLE, userId);
 };
 ```
 
@@ -72,7 +72,7 @@ import { CONTEXT_NAMES } from "../constants/contextNames";
 import { DEFAULT_VALUES } from "../constants/defaultValues";
 
 export const { GenericProvider: ExampleProvider, useGenericContext: useExampleContext } =
-  createGenericContext(CONTEXT_NAMES.EXAMPLE, API_URLS.EXAMPLE, DEFAULT_VALUES.EXAMPLE);
+  createGenericContext(CONTEXT_NAMES.EXAMPLE, DB_PATHS.EXAMPLE, DEFAULT_VALUES.EXAMPLE);
 ```
 
 ### 4. Integrate with `AppProvider` and `useAppContext`

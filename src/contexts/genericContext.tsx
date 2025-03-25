@@ -12,20 +12,20 @@ export const createGenericContext = <T,>(contextKey: string, apiUrl: string, def
 
   const GenericProvider: React.FC<{ children: React.ReactNode; userId: string|null }> = ({ children, userId }) => {
     const [data, setData] = useState<T>(defaultValue);
-    const isFirstLoad = useRef(true);
+    const initCompleted = useRef(false);
 
     useEffect(() => {
       if (!userId) return;
-      const initializeData = async () => {
-        const localData = await fetchFromLocal<T>(contextKey, userId);
-        setData(localData);
-        
+
+      const initializeData = async () => {        
         fetchFromDB<T>(contextKey, apiUrl, userId).then((dbData) => {
           setData(dbData);
           AsyncStorage.setItem(`${contextKey}-${userId}`, JSON.stringify(dbData));
+        }).catch(async () => {
+          console.error(`Failed to fetch ${contextKey} from DB for user ${userId}`);
+          const localData = await fetchFromLocal<T>(contextKey, userId);
+          setData(localData ?? defaultValue);
         });
-        
-        isFirstLoad.current = false;
       };
 
       initializeData();
@@ -33,15 +33,16 @@ export const createGenericContext = <T,>(contextKey: string, apiUrl: string, def
 
     useEffect(() => {
       if (!userId) return;
-
-      if (!isFirstLoad.current) {
-        updateInDatabase(contextKey, apiUrl, userId, data)
-          .then(() => AsyncStorage.setItem(`${contextKey}-${userId}`, JSON.stringify(data)))
-          .catch(async () => {
-            console.error(`Failed to update ${contextKey} in DB for user ${userId}, storing for retry`);
-            await AsyncStorage.setItem(`pending_${contextKey}_update-${userId}`, JSON.stringify(data));
-          });
+      if (!initCompleted.current) {
+        initCompleted.current = true;
+        return;
       }
+      updateInDatabase(contextKey, apiUrl, userId, data)
+        .then(() => AsyncStorage.setItem(`${contextKey}-${userId}`, JSON.stringify(data)))
+        .catch(async () => {
+          console.error(`Failed to update ${contextKey} in DB for user ${userId}, storing for retry`);
+          await AsyncStorage.setItem(`pending_${contextKey}_update-${userId}`, JSON.stringify(data));
+        });
     }, [data, userId]);
 
     return <GenericContext.Provider value={{ data, setData }}>{children}</GenericContext.Provider>;

@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { SafeAreaView } from 'react-native';
-import { AppProvider } from './contexts/AppContext';
-import UserComponent from './components/UserComponents';
-import ThemeComponent from './components/ThemeComponents';
-import './configs/firebaseConfig';
+import { AppProvider } from '../contexts/AppContext';
+import UserComponent from '../components/UserComponents';
+import ThemeComponent from '../components/ThemeComponents';
+import '../configs/firebaseConfig';
 import { getAuth, signInAnonymously } from 'firebase/auth';
+import Navigation from '../navigation/Navigation';
 
 if(__DEV__) {
-  require('./configs/reactotronConfig');
+  require('../configs/reactotronConfig');
 }
 
 const App: React.FC = () => {
@@ -16,7 +17,6 @@ const App: React.FC = () => {
   useEffect(() => {
     const auth = getAuth();
     auth.onAuthStateChanged((user) => {
-      console.log('User:', user?.uid);
       if(user) {
         setUserId(user.uid);
       }
@@ -30,11 +30,14 @@ const App: React.FC = () => {
 
   return (
     <AppProvider userId={userId}>
-      <SafeAreaView>
-        <UserComponent />
-        <ThemeComponent />
-      </SafeAreaView>
+      <Navigation />
     </AppProvider>
+    // <AppProvider userId={userId}>
+    //   <SafeAreaView>
+    //     <UserComponent />
+    //     <ThemeComponent />
+    //   </SafeAreaView>
+    // </AppProvider>
   );
 };
 

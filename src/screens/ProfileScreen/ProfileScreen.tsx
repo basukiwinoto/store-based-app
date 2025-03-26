@@ -1,14 +1,14 @@
-import { ProfileScreenProps } from "@/src/navigation/types";
 import { useNavigation } from "@react-navigation/native";
+import { useRouter } from "expo-router";
 import React from "react";
 import { View, Button, Text } from "react-native";
 
 export function ProfileScreen() {
-    const { navigation } = useNavigation<ProfileScreenProps>();
+  const router = useRouter();
   return (
     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
       <Text>Profile Screen</Text>
-      <Button title="Go to Home" onPress={() => navigation.navigate('Home')} />
+      <Button title="Go to Home" onPress={() => router.navigate('../(tabs)')} />
     </View>
   );
 }

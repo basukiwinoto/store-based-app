@@ -1,15 +1,22 @@
-import { HomeScreenProps } from "@/src/navigation/types";
+import { useAppContext } from "@/src/contexts/useAppContext";
 import { useNavigation } from "@react-navigation/native";
+import { useRouter } from "expo-router";
+import { getAuth } from "firebase/auth";
 import React from "react";
 import { View, Button, Text } from "react-native";
 
 // Sample Screens with TypeScript types
 export function HomeScreen() {
-    const { navigation } = useNavigation<HomeScreenProps>();
+  const router = useRouter();
+  const { user } = useAppContext();
+  const auth = getAuth();
+
   return (
     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
       <Text>Home Screen</Text>
-      <Button title="Go to Details" onPress={() => navigation.navigate('Details')} />
+      <Text>User: {`${user.name}`}</Text>
+      <Text>UserId: {`${auth.currentUser?.uid}`}</Text>
+      <Button title="Go to Details" onPress={() => router.navigate('./details')} />
     </View>
   );
 }
